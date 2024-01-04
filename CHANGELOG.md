@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.2.0] - 2024-01-07
 
 ### Added
 
@@ -26,4 +26,5 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - 🎉 Initial release.
 
+[0.2.0]: https://github.com/sunsided/crashie/releases/tag/0.2.0
 [0.1.0]: https://github.com/sunsided/crashie/releases/tag/0.1.0
