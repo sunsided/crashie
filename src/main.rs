@@ -19,7 +19,8 @@ struct Opts {
         value_name = "SECONDS",
         allow_negative_numbers = false,
         default_value = "10.0",
-        value_parser(parse_seconds)
+        value_parser(parse_seconds),
+        env = "CRASHIE_SLEEP_DELAY"
     )]
     sleep_delay: f64,
     #[clap(
@@ -28,7 +29,8 @@ struct Opts {
         value_name = "SECONDS",
         allow_negative_numbers = false,
         default_value = "2.0",
-        value_parser(parse_seconds)
+        value_parser(parse_seconds),
+        env = "CRASHIE_SLEEP_DELAY_STDDEV"
     )]
     sleep_delay_stddev: f64,
     #[clap(
@@ -36,143 +38,238 @@ struct Opts {
         long = "exit-code",
         use_value_delimiter(true),
         allow_negative_numbers = false,
-        help = "Exit with the specified code(s)"
+        help = "Exit with the specified code(s)",
+        env = "CRASHIE_EXIT_CODES"
     )]
     exit_codes: Vec<u8>,
     #[clap(
         short = 's',
-        long = "signal",
+        long = "signals",
         use_value_delimiter(true),
         value_parser(parse_signal),
         value_name = "NUMBER",
         allow_negative_numbers = false,
-        help = "Arbitrary signal (exit code 128+SIGNAL)"
+        help = "Arbitrary signal (exit code 128+SIGNAL)",
+        env = "CRASHIE_SIGNALS"
     )]
     signal: Vec<u8>,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sighup", help = "Hang up controlling terminal or terminal")
+        clap(
+            long = "sighup",
+            help = "Hang up controlling terminal or terminal",
+            env = "CRASHIE_SIGHUP"
+        )
     )]
     sighup: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigint", help = "Interrupt from keyboard, Control-C")
+        clap(
+            long = "sigint",
+            help = "Interrupt from keyboard, Control-C",
+            env = "CRASHIE_SIGINT"
+        )
     )]
     sigint: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigquit", help = "Quit from keyboard, Control-\\")
+        clap(
+            long = "sigquit",
+            help = "Quit from keyboard, Control-\\",
+            env = "CRASHIE_SIGQUIT"
+        )
     )]
     sigquit: bool,
-    #[cfg_attr(feature = "posix", clap(long = "sigill", help = "Illegal instruction"))]
+    #[cfg_attr(
+        feature = "posix",
+        clap(long = "sigill", help = "Illegal instruction", env = "CRASHIE_SIGILL")
+    )]
     sigill: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigtrap", help = "Breakpoint for debugging")
+        clap(
+            long = "sigtrap",
+            help = "Breakpoint for debugging",
+            env = "CRASHIE_SIGTRAP"
+        )
     )]
     sigtrap: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigabrt", help = "Abnormal termination")
+        clap(
+            long = "sigabrt",
+            help = "Abnormal termination",
+            env = "CRASHIE_SIGABRT"
+        )
     )]
     sigabrt: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigiot", help = "Equivalent to SIGABRT")
+        clap(
+            long = "sigiot",
+            help = "Equivalent to SIGABRT",
+            env = "CRASHIE_SIGIOT"
+        )
     )]
     sigiot: bool,
-    #[cfg_attr(feature = "non-posix", clap(long = "sigbus", help = "Bus error"))]
+    #[cfg_attr(
+        feature = "non-posix",
+        clap(long = "sigbus", help = "Bus error", env = "CRASHIE_SIGBUS")
+    )]
     sigbus: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigfpe", help = "Floating-point exception")
+        clap(
+            long = "sigfpe",
+            help = "Floating-point exception",
+            env = "CRASHIE_SIGFPE"
+        )
     )]
     sigfpe: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigkill", help = "Forced process termination")
+        clap(
+            long = "sigkill",
+            help = "Forced process termination",
+            env = "CRASHIE_SIGKILL"
+        )
     )]
     sigkill: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigusr1", help = "Freely available to processes")
+        clap(
+            long = "sigusr1",
+            help = "Freely available to processes",
+            env = "CRASHIE_SIGUSR1"
+        )
     )]
     sigusr1: bool,
     #[cfg_attr(
         feature = "posix",
         clap(
             long = "sigsegv",
-            help = "Invalid memory reference (Segmentation Fault)"
+            help = "Invalid memory reference (Segmentation Fault)",
+            env = "CRASHIE_SIGSEGV"
         )
     )]
     sigsegv: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigusr2", help = "Freely available to processes")
+        clap(
+            long = "sigusr2",
+            help = "Freely available to processes",
+            env = "CRASHIE_SIGUSR2"
+        )
     )]
     sigusr2: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigpipe", help = "Write to pipe with no readers")
+        clap(
+            long = "sigpipe",
+            help = "Write to pipe with no readers",
+            env = "CRASHIE_SIGPIPE"
+        )
     )]
     sigpipe: bool,
-    #[cfg_attr(feature = "posix", clap(long = "sigalrm", help = "Real-time clock"))]
+    #[cfg_attr(
+        feature = "posix",
+        clap(long = "sigalrm", help = "Real-time clock", env = "CRASHIE_SIGALRM")
+    )]
     sigalrm: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigterm", help = "Process termination")
+        clap(
+            long = "sigterm",
+            help = "Process termination",
+            env = "CRASHIE_SIGTERM"
+        )
     )]
     sigterm: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigstkflt", help = "Coprocessor stack error")
+        clap(
+            long = "sigstkflt",
+            help = "Coprocessor stack error",
+            env = "CRASHIE_SIGSTKFLT"
+        )
     )]
     sigstkflt: bool,
     #[cfg_attr(
         feature = "non-posix",
         clap(
             long = "sigchld",
-            help = "Child process stopped, terminated or got a signal if traced"
+            help = "Child process stopped, terminated or got a signal if traced",
+            env = "CRASHIE_SIGCHLD"
         )
     )]
     sigchld: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigxcpu", help = "CPU time limit exceeded")
+        clap(
+            long = "sigxcpu",
+            help = "CPU time limit exceeded",
+            env = "CRASHIE_SIGXCPU"
+        )
     )]
     sigxcpu: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigxfsz", help = "File size limit exceeded")
+        clap(
+            long = "sigxfsz",
+            help = "File size limit exceeded",
+            env = "CRASHIE_SIGXFSZ"
+        )
     )]
     sigxfsz: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigvtalrm", help = "Virtual timer clock")
+        clap(
+            long = "sigvtalrm",
+            help = "Virtual timer clock",
+            env = "CRASHIE_SIGVTALRM"
+        )
     )]
     sigvtalrm: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigprof", help = "Profile timer clock")
+        clap(
+            long = "sigprof",
+            help = "Profile timer clock",
+            env = "CRASHIE_SIGPROF"
+        )
     )]
     sigprof: bool,
-    #[cfg_attr(feature = "non-posix", clap(long = "sigio", help = "I/O now possible"))]
+    #[cfg_attr(
+        feature = "non-posix",
+        clap(long = "sigio", help = "I/O now possible", env = "CRASHIE_SIGIO")
+    )]
     sigio: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigpoll", help = "Equivalent to SIGIO")
+        clap(
+            long = "sigpoll",
+            help = "Equivalent to SIGIO",
+            env = "CRASHIE_SIGPOLL"
+        )
     )]
     sigpoll: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigpwr", help = "Power supply failure")
+        clap(long = "sigpwr", help = "Power supply failure", env = "CRASHIE_SIGPWR")
     )]
     sigpwr: bool,
-    #[cfg_attr(feature = "non-posix", clap(long = "sigsys", help = "Bad system call"))]
+    #[cfg_attr(
+        feature = "non-posix",
+        clap(long = "sigsys", help = "Bad system call", env = "CRASHIE_SIGSYS")
+    )]
     sigsys: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigunused", help = "Equivalent to SIGSYS")
+        clap(
+            long = "sigunused",
+            help = "Equivalent to SIGSYS",
+            env = "CRASHIE_SIGUNUSED"
+        )
     )]
     sigunused: bool,
 }

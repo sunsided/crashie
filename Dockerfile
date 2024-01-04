@@ -13,7 +13,6 @@ COPY --from=builder /app/target/release/crashie .
 ENV PATH=$PATH:/
 
 ENTRYPOINT ["/crashie"]
-CMD ["--help"]
 
 ARG DESCRIPTION="A Command-Line Utility that exits with a random exit code after a configurable delay"
 LABEL org.opencontainers.image.title="crashie"

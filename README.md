@@ -16,7 +16,14 @@ If you want to randomly fail with a SIGINT (code `130`) or SIGKILL (`137`) after
 
 ```bash
 crashie --sigint --sigkill --delay=10 --delay-stddev=2
+crashie --signals=2,3 --delay=10 --delay-stddev=2
 echo $?
+```
+
+Alternatively, provide options using environment variables:
+
+```bash
+CRASHIE_SIGNALS=2,3 CRASHIE_SLEEP_DELAY=10 CRASHIE_SLEEP_DELAY_STDDEV=2 crashie
 ```
 
 ### Running via Docker
@@ -25,13 +32,24 @@ The application is available as the [sunside/crashie](https://hub.docker.com/r/s
 To run crashie via Docker, use e.g.
 
 ```shell
-docker run --rm sunside/crashie
+docker run --rm sunside/crashie --help
 ```
 
 Provide command-line arguments as if you were running it locally:
 
 ```bash
 docker run --rm sunside/crashie --sigint --sigkill --delay=10 --delay-stddev=2
+echo $?
+```
+
+Alternatively, provide configuration via environment variables:
+
+```bash
+docker run --rm \
+  --env CRASHIE_SIGNALS=2,3 \
+  --env CRASHIE_SLEEP_DELAY=10 \
+  --env CRASHIE_SLEEP_DELAY_STDDEV=2 \
+  sunside/crashie
 echo $?
 ```
 

@@ -5,10 +5,15 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- Added environment variable support.
+
 ### Changed
 
 - When no exit code is provided as an argument, one is randomly selected.
 - A default standard deviation of two seconds is now used.
+- The default Docker behavior is now the same as with the CLI. To show the help, pass `--help`.
 
 ## [0.1.0] - 2024-01-04
 
