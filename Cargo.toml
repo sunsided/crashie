@@ -1,0 +1,23 @@
+[package]
+name = "crashie"
+description = "A Command-Line Utility that exits with a random exit code after a configurable delay"
+authors = ["Markus Mayer <github@widemeadows.de>"]
+repository = "https://github.com/sunsided/crashie"
+homepage = "https://github.com/sunsided/crashie"
+keywords = ["cli", "docker"]
+categories = ["command-line-utilities"]
+license = "EUPL-1.2"
+readme = "README.md"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["posix", "non-posix"]
+posix = []
+non-posix = []
+
+[dependencies]
+clap = { version = "4.4.12", features = ["derive"] }
+dotenvy = "0.15.7"
+rand = "0.8.5"
+rand_distr = "0.4.3"
