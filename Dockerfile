@@ -9,8 +9,12 @@ RUN strip target/release/crashie
 
 FROM alpine:3.19
 RUN apk add --no-cache libgcc
+WORKDIR /app
 COPY --from=builder /app/target/release/crashie .
-ENV PATH=$PATH:/
+ADD LICENSE.md .
+ADD README.md .
+ADD CHANGELOG.md .
+ENV PATH=$PATH:/app
 
 ENTRYPOINT ["/crashie"]
 

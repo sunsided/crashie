@@ -8,6 +8,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Added environment variable support.
+- README, CHANGELOG and LICENSE are now bundled with the Docker image.
 
 ### Changed
 
