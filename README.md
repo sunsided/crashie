@@ -1,4 +1,4 @@
-# crashie — a little failure in a box
+# 💥 crashie — a little failure in a box
 
 Crashie is a Command-Line Utility that exits with a random exit code after a configurable delay. Use when you
 want to test restart behaviors or anything that requires an application to fail.
