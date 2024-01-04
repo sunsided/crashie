@@ -27,7 +27,7 @@ struct Opts {
         help = "The standard deviation of the sleep duration, in seconds",
         value_name = "SECONDS",
         allow_negative_numbers = false,
-        default_value = "0.0",
+        default_value = "2.0",
         value_parser(parse_seconds)
     )]
     sleep_delay_stddev: f64,
