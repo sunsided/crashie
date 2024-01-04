@@ -185,7 +185,10 @@ fn main() {
 
     let sleep_delay_mean = opts.sleep_delay;
     let sleep_delay_stddev = opts.sleep_delay_stddev;
-    let codes = collect_exit_codes(opts);
+    let mut codes = collect_exit_codes(opts);
+    if codes.is_empty() {
+        codes.push(rng.gen_range(1_u8..=255))
+    }
 
     // Select a random exit code.
     let exit_code = codes.choose(&mut rng).copied().expect("set was empty");
@@ -221,13 +224,7 @@ fn sample_random_sleep_duration(
 fn collect_exit_codes(opts: Opts) -> Vec<u8> {
     let mut codes: HashSet<u8> = HashSet::from_iter(opts.exit_codes.iter().copied());
     add_signals(opts, &mut codes);
-
-    if codes.is_empty() {
-        codes.insert(0);
-    }
-
-    let codes: Vec<u8> = codes.into_iter().collect();
-    codes
+    codes.into_iter().collect()
 }
 
 fn add_signals(opts: Opts, codes: &mut HashSet<u8>) {

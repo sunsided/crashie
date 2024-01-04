@@ -7,6 +7,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- When no exit code is provided as an argument, one is randomly selected.
 - A default standard deviation of two seconds is now used.
 
 ## [0.1.0] - 2024-01-04
