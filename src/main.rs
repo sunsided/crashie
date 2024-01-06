@@ -1,5 +1,7 @@
 //! crashie — when you need it to fail.
 
+#[cfg(feature = "http-echo")]
+mod http_echo;
 mod options;
 #[cfg(feature = "tcp-echo")]
 mod tcp_echo;
@@ -35,6 +37,15 @@ fn main() {
     for addr in opts.udp_echo_socks.iter().flatten() {
         if let Err(e) = udp_echo::udp_echo(addr) {
             eprintln!("Failed to bind to UDP socket: {e}");
+            exit(1);
+        }
+    }
+
+    // Bind HTTP sockets.
+    #[cfg(feature = "http-echo")]
+    for addr in opts.http_echo_socks.iter().flatten() {
+        if let Err(e) = http_echo::http_echo(addr, opts.http_echo_liveness_probe_path.clone()) {
+            eprintln!("Failed to bind to HTTP socket: {e}");
             exit(1);
         }
     }
