@@ -44,7 +44,7 @@ fn main() {
     // Bind HTTP sockets.
     #[cfg(feature = "http-echo")]
     for addr in opts.http_echo_socks.iter().flatten() {
-        if let Err(e) = http_echo::http_echo(addr) {
+        if let Err(e) = http_echo::http_echo(addr, opts.http_echo_liveness_probe_path.clone()) {
             eprintln!("Failed to bind to HTTP socket: {e}");
             exit(1);
         }

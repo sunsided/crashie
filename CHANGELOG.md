@@ -11,6 +11,8 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Added echo support for UDP datagrams via the `CRASHIE_BIND_UDP_ECHO` / `--bind-udp-echo` option.
 - Added "echo" support for HTTP requests via the `CRASHIE_BIND_HTTP_ECHO` / `--bind-http-echo` option. The server
   will always respond with a `204 No Content`.
+- Added the `CRASHIE_HTTP_LIVENESS_PROBE_PATH` / `--http-liveness-probe-path` options to allow returning of
+  `200 OK` on a specific path.
 - Command-line options are now shown in named sections when using the `-h` / `--help` flag.
 
 ## [0.2.0] - 2024-01-07

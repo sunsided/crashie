@@ -3,6 +3,7 @@ use std::net::SocketAddr;
 
 const HELP_SECTION_CRASH_AFTER: &str = "Delay (crash after)";
 const HELP_SECTION_ECHO_SERVER: &str = "Echo Server";
+const HELP_SECTION_ECHO_SERVER_HTTP: &str = "Echo Server (HTTP)";
 const HELP_SECTION_EXIT_CODES: &str = "Exit Codes";
 const HELP_SECTION_EXIT_CODES_POSIX: &str = "Exit Codes (POSIX)";
 const HELP_SECTION_EXIT_CODES_NON_POSIX: &str = "Exit Codes (non-POSIX)";
@@ -66,7 +67,7 @@ pub struct Opts {
         feature = "http-echo",
         clap(
             long = "bind-http-echo",
-            help_heading = HELP_SECTION_ECHO_SERVER,
+            help_heading = HELP_SECTION_ECHO_SERVER_HTTP,
             help = "Provide HTTP echo on the specified addresses",
             value_name = "SOCK_ADDR",
             use_value_delimiter(true),
@@ -76,6 +77,20 @@ pub struct Opts {
     )]
     #[cfg_attr(not(feature = "http-echo"), clap(skip))]
     pub http_echo_socks: Vec<Vec<SocketAddr>>,
+    #[cfg_attr(
+        feature = "http-echo",
+        clap(
+            long = "http-liveness-probe-path",
+            help_heading = HELP_SECTION_ECHO_SERVER_HTTP,
+            help = "The request path on which to serve liveness probe results",
+            value_name = "HTTP_PATH",
+            use_value_delimiter(true),
+            default_value = "/health/live",
+            env = "CRASHIE_HTTP_LIVENESS_PROBE_PATH"
+        )
+    )]
+    #[cfg_attr(not(feature = "http-echo"), clap(skip))]
+    pub http_echo_liveness_probe_path: String,
 
     #[clap(
         short = 'e',

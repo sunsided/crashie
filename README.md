@@ -53,6 +53,16 @@ crashie --bind-http-echo 127.0.0.1:8080
 You can test the connection e.g. with curl (`curl -v localhost:8080`). As of now, the server always ignores the request
 specifics and responds with `204 No Content`.
 
+To support cases where responses must be `200 OK` exactly - e.g. for liveness probes in ingress checks - you
+can provide the `CRASHIE_HTTP_LIVENESS_PROBE_PATH` or `--http-liveness-probe-path` argument:
+
+```bash
+crashie --bind-http-echo 127.0.0.1:8080 --http-liveness-probe-path /.health/livez
+```
+
+In this situation, calls to `curl -v localhost:8080` result in a `204 No Content`, while
+`curl -v localhost:8080/.health/livez` results in a `200 OK`.
+
 ### Running via Docker
 
 The application is available as the [sunside/crashie](https://hub.docker.com/r/sunside/crashie) Docker image.
