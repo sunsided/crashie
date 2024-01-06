@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 use std::io::{BufRead, BufReader, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::thread;
@@ -35,12 +36,12 @@ fn handle_client(stream: TcpStream) {
         }
 
         // RFC2616: should ignore any empty line(s) (CRLF only) received
-        // where a Request-Line is expected
+        // where a Request-Line is expected.
         if request_line == "\r\n" || request_line == "\n" {
             continue;
         }
 
-        // Reading headers
+        // Read and ignore headers.
         let mut header_line = String::new();
         loop {
             header_line.clear();
@@ -52,13 +53,19 @@ fn handle_client(stream: TcpStream) {
             }
         }
 
-        // To retain mutable reference to the stream after use
+        // To retain mutable reference to the stream after use.
         let mut stream = reader
             .get_ref()
             .try_clone()
             .expect("Failed to obtain write stream");
 
-        let response = "HTTP/1.1 204 No Content\r\n\r\n";
+        // Setting version and date from env variable and system time respectively.
+        let version = env!("CARGO_PKG_VERSION");
+        let date = Utc::now().format("%a, %d %b %Y %T GMT").to_string();
+
+        let response = format!(
+            "HTTP/1.1 204 No Content\r\nServer: crashie/{version}\r\nDate: {date}\r\nContent-Length: 0\r\nCache-Control: no-cache, no-store\r\n\r\n");
+
         if let Err(e) = stream.write_all(response.as_bytes()) {
             eprintln!("Failed to write HTTP response: {e}")
         }

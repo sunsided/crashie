@@ -43,6 +43,16 @@ crashie --bind-udp-echo 127.0.0.1:8080
 
 On Linux, you can test the echo behavior e.g. using netcat (`nc 127.0.0.1 8080` for TCP or `nc -u 127.0.0.1 8080` for UDP).
 
+To simplify work with HTTP connections, you can also bind an HTTP "echo". For that, use the `CRASHIE_BIND_HTTP_ECHO`
+environment variable or run e.g.
+
+```bash
+crashie --bind-http-echo 127.0.0.1:8080
+```
+
+You can test the connection e.g. with curl (`curl -v localhost:8080`). As of now, the server always ignores the request
+specifics and responds with `204 No Content`.
+
 ### Running via Docker
 
 The application is available as the [sunside/crashie](https://hub.docker.com/r/sunside/crashie) Docker image.

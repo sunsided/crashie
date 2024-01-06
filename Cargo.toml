@@ -16,10 +16,11 @@ default = ["posix", "non-posix", "tcp-echo", "http-echo", "udp-echo"]
 posix = []
 non-posix = []
 tcp-echo = []
-http-echo = []
+http-echo = ["dep:chrono"]
 udp-echo = []
 
 [dependencies]
+chrono = { version = "0.4.31", optional = true, default-features = false, features = ["clock", "alloc"] }
 clap = { version = "4.4.12", features = ["derive", "env"] }
 dotenvy = "0.15.7"
 rand = "0.8.5"
