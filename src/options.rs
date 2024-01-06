@@ -33,6 +33,7 @@ pub struct Opts {
         env = "CRASHIE_SLEEP_DELAY_STDDEV"
     )]
     pub sleep_delay_stddev: f64,
+
     #[cfg_attr(
         feature = "tcp-echo",
         clap(
@@ -61,6 +62,21 @@ pub struct Opts {
     )]
     #[cfg_attr(not(feature = "udp-echo"), clap(skip))]
     pub udp_echo_socks: Vec<Vec<SocketAddr>>,
+    #[cfg_attr(
+        feature = "http-echo",
+        clap(
+            long = "bind-http-echo",
+            help_heading = HELP_SECTION_ECHO_SERVER,
+            help = "Provide HTTP echo on the specified addresses",
+            value_name = "SOCK_ADDR",
+            use_value_delimiter(true),
+            value_parser(parse_socket_addr),
+            env = "CRASHIE_BIND_HTTP_ECHO"
+        )
+    )]
+    #[cfg_attr(not(feature = "http-echo"), clap(skip))]
+    pub http_echo_socks: Vec<Vec<SocketAddr>>,
+
     #[clap(
         short = 'e',
         long = "exit-code",
@@ -83,6 +99,7 @@ pub struct Opts {
         env = "CRASHIE_SIGNALS"
     )]
     pub signal: Vec<u8>,
+
     #[cfg_attr(
         feature = "posix",
         clap(

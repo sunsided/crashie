@@ -12,10 +12,11 @@ version = "0.2.0"
 edition = "2021"
 
 [features]
-default = ["posix", "non-posix", "tcp-echo", "udp-echo"]
+default = ["posix", "non-posix", "tcp-echo", "http-echo", "udp-echo"]
 posix = []
 non-posix = []
 tcp-echo = []
+http-echo = []
 udp-echo = []
 
 [dependencies]
