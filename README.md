@@ -8,11 +8,9 @@ Sleeping for 12.72 seconds, then exiting with code 130
 Exiting with code 130
 ```
 
-## Usage
+## Usage Example
 
-### Usage Example
-
-If you want to randomly fail with a SIGINT (code `130`) or SIGKILL (`137`) after 10 ± 2 seconds, run:
+If you would like to randomly fail with a SIGINT (code `130`) or SIGKILL (`137`) after 10 ± 2 seconds, run:
 
 ```bash
 crashie --sigint --sigkill --delay=10 --delay-stddev=2
