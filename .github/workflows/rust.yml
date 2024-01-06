@@ -46,7 +46,7 @@ jobs:
         run: cargo clippy
 
   test:
-    name: Test ${{ matrix.rust }} on ${{ matrix.os }}
+    name: Test ${{ matrix.rust }} with  ${{ matrix.features }} on ${{ matrix.os }}
     needs:
       - style
     strategy:
@@ -81,7 +81,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - name: Test with ${{ matrix.features }}
+      - name: Test
         run: cargo test --release ${{ matrix.features }}
 
   udeps:

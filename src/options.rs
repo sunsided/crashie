@@ -1,5 +1,5 @@
 use clap::Parser;
-use std::net::{SocketAddr, ToSocketAddrs};
+use std::net::SocketAddr;
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
@@ -35,6 +35,7 @@ pub struct Opts {
             env = "CRASHIE_BIND_TCP_ECHO"
         )
     )]
+    #[cfg_attr(not(feature = "tcp-echo"), clap(skip))]
     pub tcp_echo_socks: Vec<Vec<SocketAddr>>,
     #[cfg_attr(
         feature = "udp-echo",
@@ -46,6 +47,7 @@ pub struct Opts {
             env = "CRASHIE_BIND_UDP_ECHO"
         )
     )]
+    #[cfg_attr(not(feature = "udp-echo"), clap(skip))]
     pub udp_echo_socks: Vec<Vec<SocketAddr>>,
     #[clap(
         short = 'e',
@@ -75,6 +77,7 @@ pub struct Opts {
             env = "CRASHIE_SIGHUP"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sighup: bool,
     #[cfg_attr(
         feature = "posix",
@@ -84,6 +87,7 @@ pub struct Opts {
             env = "CRASHIE_SIGINT"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigint: bool,
     #[cfg_attr(
         feature = "posix",
@@ -93,11 +97,13 @@ pub struct Opts {
             env = "CRASHIE_SIGQUIT"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigquit: bool,
     #[cfg_attr(
         feature = "posix",
         clap(long = "sigill", help = "Illegal instruction", env = "CRASHIE_SIGILL")
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigill: bool,
     #[cfg_attr(
         feature = "non-posix",
@@ -107,6 +113,7 @@ pub struct Opts {
             env = "CRASHIE_SIGTRAP"
         )
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigtrap: bool,
     #[cfg_attr(
         feature = "posix",
@@ -116,6 +123,7 @@ pub struct Opts {
             env = "CRASHIE_SIGABRT"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigabrt: bool,
     #[cfg_attr(
         feature = "non-posix",
@@ -125,11 +133,13 @@ pub struct Opts {
             env = "CRASHIE_SIGIOT"
         )
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigiot: bool,
     #[cfg_attr(
         feature = "non-posix",
         clap(long = "sigbus", help = "Bus error", env = "CRASHIE_SIGBUS")
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigbus: bool,
     #[cfg_attr(
         feature = "posix",
@@ -139,6 +149,7 @@ pub struct Opts {
             env = "CRASHIE_SIGFPE"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigfpe: bool,
     #[cfg_attr(
         feature = "posix",
@@ -148,6 +159,7 @@ pub struct Opts {
             env = "CRASHIE_SIGKILL"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigkill: bool,
     #[cfg_attr(
         feature = "posix",
@@ -157,6 +169,7 @@ pub struct Opts {
             env = "CRASHIE_SIGUSR1"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigusr1: bool,
     #[cfg_attr(
         feature = "posix",
@@ -166,6 +179,7 @@ pub struct Opts {
             env = "CRASHIE_SIGSEGV"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigsegv: bool,
     #[cfg_attr(
         feature = "posix",
@@ -175,6 +189,7 @@ pub struct Opts {
             env = "CRASHIE_SIGUSR2"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigusr2: bool,
     #[cfg_attr(
         feature = "posix",
@@ -184,11 +199,13 @@ pub struct Opts {
             env = "CRASHIE_SIGPIPE"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigpipe: bool,
     #[cfg_attr(
         feature = "posix",
         clap(long = "sigalrm", help = "Real-time clock", env = "CRASHIE_SIGALRM")
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigalrm: bool,
     #[cfg_attr(
         feature = "posix",
@@ -198,6 +215,7 @@ pub struct Opts {
             env = "CRASHIE_SIGTERM"
         )
     )]
+    #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigterm: bool,
     #[cfg_attr(
         feature = "non-posix",
@@ -207,6 +225,7 @@ pub struct Opts {
             env = "CRASHIE_SIGSTKFLT"
         )
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigstkflt: bool,
     #[cfg_attr(
         feature = "non-posix",
@@ -216,6 +235,7 @@ pub struct Opts {
             env = "CRASHIE_SIGCHLD"
         )
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigchld: bool,
     #[cfg_attr(
         feature = "non-posix",
@@ -225,6 +245,7 @@ pub struct Opts {
             env = "CRASHIE_SIGXCPU"
         )
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigxcpu: bool,
     #[cfg_attr(
         feature = "non-posix",
@@ -234,6 +255,7 @@ pub struct Opts {
             env = "CRASHIE_SIGXFSZ"
         )
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigxfsz: bool,
     #[cfg_attr(
         feature = "non-posix",
@@ -243,6 +265,7 @@ pub struct Opts {
             env = "CRASHIE_SIGVTALRM"
         )
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigvtalrm: bool,
     #[cfg_attr(
         feature = "non-posix",
@@ -252,11 +275,13 @@ pub struct Opts {
             env = "CRASHIE_SIGPROF"
         )
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigprof: bool,
     #[cfg_attr(
         feature = "non-posix",
         clap(long = "sigio", help = "I/O now possible", env = "CRASHIE_SIGIO")
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigio: bool,
     #[cfg_attr(
         feature = "non-posix",
@@ -266,16 +291,19 @@ pub struct Opts {
             env = "CRASHIE_SIGPOLL"
         )
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigpoll: bool,
     #[cfg_attr(
         feature = "non-posix",
         clap(long = "sigpwr", help = "Power supply failure", env = "CRASHIE_SIGPWR")
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigpwr: bool,
     #[cfg_attr(
         feature = "non-posix",
         clap(long = "sigsys", help = "Bad system call", env = "CRASHIE_SIGSYS")
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigsys: bool,
     #[cfg_attr(
         feature = "non-posix",
@@ -285,6 +313,7 @@ pub struct Opts {
             env = "CRASHIE_SIGUNUSED"
         )
     )]
+    #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigunused: bool,
 }
 
@@ -306,7 +335,9 @@ fn parse_seconds(input: &str) -> Result<f64, String> {
     }
 }
 
+#[cfg(any(feature = "tcp-echo", feature = "udp-echo"))]
 fn parse_socket_addr(input: &str) -> Result<Vec<SocketAddr>, String> {
+    use std::net::ToSocketAddrs;
     Ok(input
         .to_socket_addrs()
         .map_err(|e| format!("{e}"))?
