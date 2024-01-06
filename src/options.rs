@@ -1,12 +1,19 @@
 use clap::Parser;
 use std::net::SocketAddr;
 
+const HELP_SECTION_CRASH_AFTER: &str = "Delay (crash after)";
+const HELP_SECTION_ECHO_SERVER: &str = "Echo Server";
+const HELP_SECTION_EXIT_CODES: &str = "Exit Codes";
+const HELP_SECTION_EXIT_CODES_POSIX: &str = "Exit Codes (POSIX)";
+const HELP_SECTION_EXIT_CODES_NON_POSIX: &str = "Exit Codes (non-POSIX)";
+
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
 pub struct Opts {
     #[clap(
         short = 'd',
         long = "delay",
+        help_heading = HELP_SECTION_CRASH_AFTER,
         help = "The sleep duration before exiting, in seconds",
         value_name = "SECONDS",
         allow_negative_numbers = false,
@@ -17,6 +24,7 @@ pub struct Opts {
     pub sleep_delay: f64,
     #[clap(
         long = "delay-stddev",
+        help_heading = HELP_SECTION_CRASH_AFTER,
         help = "The standard deviation of the sleep duration, in seconds",
         value_name = "SECONDS",
         allow_negative_numbers = false,
@@ -29,7 +37,9 @@ pub struct Opts {
         feature = "tcp-echo",
         clap(
             long = "bind-tcp-echo",
-            help = "Binds an echo TCP socket on the specified addresses",
+            help_heading = HELP_SECTION_ECHO_SERVER,
+            help = "Provide TCP echo on the specified addresses",
+            value_name = "SOCK_ADDR",
             use_value_delimiter(true),
             value_parser(parse_socket_addr),
             env = "CRASHIE_BIND_TCP_ECHO"
@@ -41,7 +51,9 @@ pub struct Opts {
         feature = "udp-echo",
         clap(
             long = "bind-udp-echo",
-            help = "Binds an echo UDP socket on the specified addresses",
+            help_heading = HELP_SECTION_ECHO_SERVER,
+            help = "Provide UDP echo on the specified addresses",
+            value_name = "SOCK_ADDR",
             use_value_delimiter(true),
             value_parser(parse_socket_addr),
             env = "CRASHIE_BIND_UDP_ECHO"
@@ -52,6 +64,7 @@ pub struct Opts {
     #[clap(
         short = 'e',
         long = "exit-code",
+        help_heading = HELP_SECTION_EXIT_CODES,
         use_value_delimiter(true),
         allow_negative_numbers = false,
         help = "Exit with the specified code(s)",
@@ -61,6 +74,7 @@ pub struct Opts {
     #[clap(
         short = 's',
         long = "signals",
+        help_heading = HELP_SECTION_EXIT_CODES,
         use_value_delimiter(true),
         value_parser(parse_signal),
         value_name = "NUMBER",
@@ -73,6 +87,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sighup",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Hang up controlling terminal or terminal",
             env = "CRASHIE_SIGHUP"
         )
@@ -83,6 +98,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sigint",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Interrupt from keyboard, Control-C",
             env = "CRASHIE_SIGINT"
         )
@@ -93,6 +109,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sigquit",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Quit from keyboard, Control-\\",
             env = "CRASHIE_SIGQUIT"
         )
@@ -101,7 +118,12 @@ pub struct Opts {
     pub sigquit: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigill", help = "Illegal instruction", env = "CRASHIE_SIGILL")
+        clap(
+            long = "sigill",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
+            help = "Illegal instruction",
+            env = "CRASHIE_SIGILL"
+        )
     )]
     #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigill: bool,
@@ -109,6 +131,7 @@ pub struct Opts {
         feature = "non-posix",
         clap(
             long = "sigtrap",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
             help = "Breakpoint for debugging",
             env = "CRASHIE_SIGTRAP"
         )
@@ -119,6 +142,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sigabrt",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Abnormal termination",
             env = "CRASHIE_SIGABRT"
         )
@@ -129,6 +153,7 @@ pub struct Opts {
         feature = "non-posix",
         clap(
             long = "sigiot",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
             help = "Equivalent to SIGABRT",
             env = "CRASHIE_SIGIOT"
         )
@@ -137,7 +162,12 @@ pub struct Opts {
     pub sigiot: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigbus", help = "Bus error", env = "CRASHIE_SIGBUS")
+        clap(
+            long = "sigbus",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
+            help = "Bus error",
+            env = "CRASHIE_SIGBUS"
+        )
     )]
     #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigbus: bool,
@@ -145,6 +175,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sigfpe",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Floating-point exception",
             env = "CRASHIE_SIGFPE"
         )
@@ -155,6 +186,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sigkill",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Forced process termination",
             env = "CRASHIE_SIGKILL"
         )
@@ -165,6 +197,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sigusr1",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Freely available to processes",
             env = "CRASHIE_SIGUSR1"
         )
@@ -175,6 +208,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sigsegv",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Invalid memory reference (Segmentation Fault)",
             env = "CRASHIE_SIGSEGV"
         )
@@ -185,6 +219,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sigusr2",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Freely available to processes",
             env = "CRASHIE_SIGUSR2"
         )
@@ -195,6 +230,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sigpipe",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Write to pipe with no readers",
             env = "CRASHIE_SIGPIPE"
         )
@@ -203,7 +239,12 @@ pub struct Opts {
     pub sigpipe: bool,
     #[cfg_attr(
         feature = "posix",
-        clap(long = "sigalrm", help = "Real-time clock", env = "CRASHIE_SIGALRM")
+        clap(
+            long = "sigalrm",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
+            help = "Real-time clock",
+            env = "CRASHIE_SIGALRM"
+        )
     )]
     #[cfg_attr(not(feature = "posix"), clap(skip))]
     pub sigalrm: bool,
@@ -211,6 +252,7 @@ pub struct Opts {
         feature = "posix",
         clap(
             long = "sigterm",
+            help_heading = HELP_SECTION_EXIT_CODES_POSIX,
             help = "Process termination",
             env = "CRASHIE_SIGTERM"
         )
@@ -221,6 +263,7 @@ pub struct Opts {
         feature = "non-posix",
         clap(
             long = "sigstkflt",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
             help = "Coprocessor stack error",
             env = "CRASHIE_SIGSTKFLT"
         )
@@ -231,6 +274,7 @@ pub struct Opts {
         feature = "non-posix",
         clap(
             long = "sigchld",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
             help = "Child process stopped, terminated or got a signal if traced",
             env = "CRASHIE_SIGCHLD"
         )
@@ -241,6 +285,7 @@ pub struct Opts {
         feature = "non-posix",
         clap(
             long = "sigxcpu",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
             help = "CPU time limit exceeded",
             env = "CRASHIE_SIGXCPU"
         )
@@ -251,6 +296,7 @@ pub struct Opts {
         feature = "non-posix",
         clap(
             long = "sigxfsz",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
             help = "File size limit exceeded",
             env = "CRASHIE_SIGXFSZ"
         )
@@ -261,6 +307,7 @@ pub struct Opts {
         feature = "non-posix",
         clap(
             long = "sigvtalrm",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
             help = "Virtual timer clock",
             env = "CRASHIE_SIGVTALRM"
         )
@@ -271,6 +318,7 @@ pub struct Opts {
         feature = "non-posix",
         clap(
             long = "sigprof",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
             help = "Profile timer clock",
             env = "CRASHIE_SIGPROF"
         )
@@ -279,7 +327,12 @@ pub struct Opts {
     pub sigprof: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigio", help = "I/O now possible", env = "CRASHIE_SIGIO")
+        clap(
+            long = "sigio",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
+            help = "I/O now possible",
+            env = "CRASHIE_SIGIO"
+        )
     )]
     #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigio: bool,
@@ -287,6 +340,7 @@ pub struct Opts {
         feature = "non-posix",
         clap(
             long = "sigpoll",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
             help = "Equivalent to SIGIO",
             env = "CRASHIE_SIGPOLL"
         )
@@ -295,13 +349,23 @@ pub struct Opts {
     pub sigpoll: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigpwr", help = "Power supply failure", env = "CRASHIE_SIGPWR")
+        clap(
+            long = "sigpwr",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
+            help = "Power supply failure",
+            env = "CRASHIE_SIGPWR"
+        )
     )]
     #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigpwr: bool,
     #[cfg_attr(
         feature = "non-posix",
-        clap(long = "sigsys", help = "Bad system call", env = "CRASHIE_SIGSYS")
+        clap(
+            long = "sigsys",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
+            help = "Bad system call",
+            env = "CRASHIE_SIGSYS"
+        )
     )]
     #[cfg_attr(not(feature = "non-posix"), clap(skip))]
     pub sigsys: bool,
@@ -309,6 +373,7 @@ pub struct Opts {
         feature = "non-posix",
         clap(
             long = "sigunused",
+            help_heading = HELP_SECTION_EXIT_CODES_NON_POSIX,
             help = "Equivalent to SIGSYS",
             env = "CRASHIE_SIGUNUSED"
         )
