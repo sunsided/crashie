@@ -26,14 +26,25 @@ pub fn tcp_echo(addr: &SocketAddr) -> Result<(), std::io::Error> {
 }
 
 fn handle_client(mut stream: TcpStream) {
-    let mut buffer = String::new();
+    let mut buffer = [0; 512];
 
-    match stream.read_to_string(&mut buffer) {
-        Ok(_) => {
-            stream.write_all(buffer.as_bytes()).unwrap();
-        }
-        Err(e) => {
-            eprintln!("Failed to read from socket: {}", e);
+    loop {
+        match stream.read(&mut buffer) {
+            Ok(0) => {
+                // The client has closed the connection.
+                return;
+            }
+            Ok(n) => {
+                // Echo everything back.
+                if let Err(e) = stream.write_all(&buffer[0..n]) {
+                    eprintln!("Failed to write to socket: {e}");
+                    return;
+                }
+            }
+            Err(e) => {
+                eprintln!("Failed to read from socket: {e}");
+                return;
+            }
         }
     }
 }
