@@ -36,6 +36,17 @@ pub struct Opts {
         )
     )]
     pub tcp_echo_socks: Vec<Vec<SocketAddr>>,
+    #[cfg_attr(
+        feature = "udp-echo",
+        clap(
+            long = "bind-udp-echo",
+            help = "Binds an echo UDP socket on the specified addresses",
+            use_value_delimiter(true),
+            value_parser(parse_socket_addr),
+            env = "CRASHIE_BIND_UDP_ECHO"
+        )
+    )]
+    pub udp_echo_socks: Vec<Vec<SocketAddr>>,
     #[clap(
         short = 'e',
         long = "exit-code",
@@ -299,6 +310,5 @@ fn parse_socket_addr(input: &str) -> Result<Vec<SocketAddr>, String> {
     Ok(input
         .to_socket_addrs()
         .map_err(|e| format!("{e}"))?
-        .into_iter()
         .collect())
 }

@@ -3,6 +3,8 @@
 mod options;
 #[cfg(feature = "tcp-echo")]
 mod tcp_echo;
+#[cfg(feature = "udp-echo")]
+mod udp_echo;
 
 use clap::Parser;
 use dotenvy::dotenv;
@@ -19,11 +21,20 @@ fn main() {
     let mut rng = thread_rng();
     let opts: Opts = Opts::parse();
 
-    // Bind echo sockets.
+    // Bind TCP echo sockets.
     #[cfg(feature = "tcp-echo")]
     for addr in opts.tcp_echo_socks.iter().flatten() {
         if let Err(e) = tcp_echo::tcp_echo(addr) {
             eprintln!("Failed to bind to TCP socket: {e}");
+            exit(1);
+        }
+    }
+
+    // Bind TDP echo sockets.
+    #[cfg(feature = "udp-echo")]
+    for addr in opts.udp_echo_socks.iter().flatten() {
+        if let Err(e) = udp_echo::udp_echo(addr) {
+            eprintln!("Failed to bind to UDP socket: {e}");
             exit(1);
         }
     }
