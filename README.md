@@ -37,8 +37,6 @@ crashie --bind-tcp-echo 127.0.0.1:8080
 
 Likewise, UDP echo is supported. For that, use the `CRASHIE_BIND_UDP_ECHO` environment variable or run e.g.
 
-To bind crashie to TCP sockets, use the `CRASHIE_BIND_TCP_ECHO` environment variable or run e.g.
-
 ```bash
 crashie --bind-udp-echo 127.0.0.1:8080
 ```
