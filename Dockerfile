@@ -16,7 +16,15 @@ ADD README.md .
 ADD CHANGELOG.md .
 ENV PATH=$PATH:/app
 
-ENTRYPOINT ["/crashie"]
+ENV CRASHIE_BIND_HTTP_ECHO=0.0.0.0:80
+ENV CRASHIE_BIND_TCP_ECHO=0.0.0.0:30000
+ENV CRASHIE_BIND_UDP_ECHO=0.0.0.0:40000
+
+EXPOSE 80
+EXPOSE 30000
+EXPOSE 40000
+
+ENTRYPOINT ["/app/crashie"]
 
 ARG DESCRIPTION="A Command-Line Utility that exits with a random exit code after a configurable delay"
 LABEL org.opencontainers.image.title="crashie"
