@@ -8,7 +8,7 @@ keywords = ["cli", "docker"]
 categories = ["command-line-utilities"]
 license = "EUPL-1.2"
 readme = "README.md"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 
 [features]
