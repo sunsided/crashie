@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- Added `CRASHIE_SLEEP_DELAY_GRACE_PERIOD` / `--delay-grace-period` option to provide a minimum value of seconds
+  to wait before crashing.
+
 ## [0.3.0] - 2024-01-06
 
 ### Added
