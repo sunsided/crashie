@@ -58,8 +58,45 @@ can provide the `CRASHIE_HTTP_LIVENESS_PROBE_PATH` or `--http-liveness-probe-pat
 crashie --bind-http-echo 127.0.0.1:8080 --http-liveness-probe-path /.health/livez
 ```
 
-In this situation, calls to `curl -v localhost:8080` result in a `204 No Content`, while
-`curl -v localhost:8080/.health/livez` results in a `200 OK`.
+In this situation, calls to `curl -v localhost:8080` result in a `204 No Content`:
+
+```
+* processing: localhost:8080
+*   Trying [::1]:8080...
+* Connected to localhost (::1) port 8080
+> GET / HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/8.2.1
+> Accept: */*
+>
+< HTTP/1.1 204 No Content
+< Server: crashie/0.3.0
+< Date: Sat, 06 Jan 2024 14:44:53 GMT
+< Content-Length: 0
+< Cache-Control: no-cache, no-store
+<
+* Connection #0 to host localhost left intact
+```
+
+... while `curl -v localhost:8080/.health/livez` results in a `200 OK`:
+
+```
+* processing: localhost:8080/.health/livez
+*   Trying [::1]:8080...
+* Connected to localhost (127.0.0.1) port 8080
+> GET /.health/livez HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/8.2.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Server: crashie/0.3.0
+< Date: Sat, 06 Jan 2024 14:44:59 GMT
+< Content-Length: 0
+< Cache-Control: no-cache, no-store
+<
+* Connection #0 to host localhost left intact
+```
 
 ### Running via Docker
 
