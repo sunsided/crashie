@@ -18,7 +18,7 @@ pub struct Opts {
         help = "The sleep duration before exiting, in seconds",
         value_name = "SECONDS",
         allow_negative_numbers = false,
-        default_value = "10.0",
+        default_value = "9.0",
         value_parser(parse_seconds),
         env = "CRASHIE_SLEEP_DELAY"
     )]
@@ -34,6 +34,17 @@ pub struct Opts {
         env = "CRASHIE_SLEEP_DELAY_STDDEV"
     )]
     pub sleep_delay_stddev: f64,
+    #[clap(
+        long = "delay-grace-period",
+        help_heading = HELP_SECTION_CRASH_AFTER,
+        help = "The duration, in seconds, to wait before starting the actual delay",
+        value_name = "SECONDS",
+        allow_negative_numbers = false,
+        default_value = "1.0",
+        value_parser(parse_seconds),
+        env = "CRASHIE_SLEEP_DELAY_GRACE_PERIOD"
+    )]
+    pub sleep_delay_grace: f64,
 
     #[cfg_attr(
         feature = "tcp-echo",

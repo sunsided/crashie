@@ -50,6 +50,7 @@ fn main() {
         }
     }
 
+    let sleep_delay_grace = opts.sleep_delay_grace;
     let sleep_delay_mean = opts.sleep_delay;
     let sleep_delay_stddev = opts.sleep_delay_stddev;
     let mut codes = collect_exit_codes(opts);
@@ -61,11 +62,11 @@ fn main() {
     let exit_code = codes.choose(&mut rng).copied().expect("set was empty");
 
     // Sleep for a random duration.
-    let sleep_time = sample_random_sleep_duration(&mut rng, sleep_delay_mean, sleep_delay_stddev);
+    let sleep_time = sleep_delay_grace
+        + sample_random_sleep_duration(&mut rng, sleep_delay_mean, sleep_delay_stddev);
     if sleep_time >= 1e-6 {
-        println!("Sleeping for {sleep_time:.2} seconds, then exiting with code {exit_code}",);
-        let duration = Duration::from_secs_f64(sleep_time);
-        sleep(duration);
+        println!("Sleeping for {sleep_time:.2} seconds, then exiting with code {exit_code}");
+        sleep(Duration::from_secs_f64(sleep_time));
     }
 
     println!("Exiting with code {exit_code}");
