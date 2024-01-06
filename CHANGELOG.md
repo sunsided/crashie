@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- Added echo support for TCP connections via the `CRASHIE_BIND_TCP_ECHO` / `--bind-tcp-echo` option.
+- Added echo support for UDP datagrams via the `CRASHIE_BIND_UDP_ECHO` / `--bind-udp-echo` option.
+
 ## [0.2.0] - 2024-01-07
 
 ### Added

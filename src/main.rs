@@ -1,7 +1,14 @@
 //! crashie — when you need it to fail.
 
+mod options;
+#[cfg(feature = "tcp-echo")]
+mod tcp_echo;
+#[cfg(feature = "udp-echo")]
+mod udp_echo;
+
 use clap::Parser;
 use dotenvy::dotenv;
+use options::Opts;
 use rand::prelude::*;
 use rand_distr::Normal;
 use std::collections::HashSet;
@@ -9,276 +16,28 @@ use std::process::exit;
 use std::thread::sleep;
 use std::time::Duration;
 
-#[derive(Debug, Parser)]
-#[command(author, version, about, long_about = None)]
-struct Opts {
-    #[clap(
-        short = 'd',
-        long = "delay",
-        help = "The sleep duration before exiting, in seconds",
-        value_name = "SECONDS",
-        allow_negative_numbers = false,
-        default_value = "10.0",
-        value_parser(parse_seconds),
-        env = "CRASHIE_SLEEP_DELAY"
-    )]
-    sleep_delay: f64,
-    #[clap(
-        long = "delay-stddev",
-        help = "The standard deviation of the sleep duration, in seconds",
-        value_name = "SECONDS",
-        allow_negative_numbers = false,
-        default_value = "2.0",
-        value_parser(parse_seconds),
-        env = "CRASHIE_SLEEP_DELAY_STDDEV"
-    )]
-    sleep_delay_stddev: f64,
-    #[clap(
-        short = 'e',
-        long = "exit-code",
-        use_value_delimiter(true),
-        allow_negative_numbers = false,
-        help = "Exit with the specified code(s)",
-        env = "CRASHIE_EXIT_CODES"
-    )]
-    exit_codes: Vec<u8>,
-    #[clap(
-        short = 's',
-        long = "signals",
-        use_value_delimiter(true),
-        value_parser(parse_signal),
-        value_name = "NUMBER",
-        allow_negative_numbers = false,
-        help = "Arbitrary signal (exit code 128+SIGNAL)",
-        env = "CRASHIE_SIGNALS"
-    )]
-    signal: Vec<u8>,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sighup",
-            help = "Hang up controlling terminal or terminal",
-            env = "CRASHIE_SIGHUP"
-        )
-    )]
-    sighup: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sigint",
-            help = "Interrupt from keyboard, Control-C",
-            env = "CRASHIE_SIGINT"
-        )
-    )]
-    sigint: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sigquit",
-            help = "Quit from keyboard, Control-\\",
-            env = "CRASHIE_SIGQUIT"
-        )
-    )]
-    sigquit: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(long = "sigill", help = "Illegal instruction", env = "CRASHIE_SIGILL")
-    )]
-    sigill: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(
-            long = "sigtrap",
-            help = "Breakpoint for debugging",
-            env = "CRASHIE_SIGTRAP"
-        )
-    )]
-    sigtrap: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sigabrt",
-            help = "Abnormal termination",
-            env = "CRASHIE_SIGABRT"
-        )
-    )]
-    sigabrt: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(
-            long = "sigiot",
-            help = "Equivalent to SIGABRT",
-            env = "CRASHIE_SIGIOT"
-        )
-    )]
-    sigiot: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(long = "sigbus", help = "Bus error", env = "CRASHIE_SIGBUS")
-    )]
-    sigbus: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sigfpe",
-            help = "Floating-point exception",
-            env = "CRASHIE_SIGFPE"
-        )
-    )]
-    sigfpe: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sigkill",
-            help = "Forced process termination",
-            env = "CRASHIE_SIGKILL"
-        )
-    )]
-    sigkill: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sigusr1",
-            help = "Freely available to processes",
-            env = "CRASHIE_SIGUSR1"
-        )
-    )]
-    sigusr1: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sigsegv",
-            help = "Invalid memory reference (Segmentation Fault)",
-            env = "CRASHIE_SIGSEGV"
-        )
-    )]
-    sigsegv: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sigusr2",
-            help = "Freely available to processes",
-            env = "CRASHIE_SIGUSR2"
-        )
-    )]
-    sigusr2: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sigpipe",
-            help = "Write to pipe with no readers",
-            env = "CRASHIE_SIGPIPE"
-        )
-    )]
-    sigpipe: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(long = "sigalrm", help = "Real-time clock", env = "CRASHIE_SIGALRM")
-    )]
-    sigalrm: bool,
-    #[cfg_attr(
-        feature = "posix",
-        clap(
-            long = "sigterm",
-            help = "Process termination",
-            env = "CRASHIE_SIGTERM"
-        )
-    )]
-    sigterm: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(
-            long = "sigstkflt",
-            help = "Coprocessor stack error",
-            env = "CRASHIE_SIGSTKFLT"
-        )
-    )]
-    sigstkflt: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(
-            long = "sigchld",
-            help = "Child process stopped, terminated or got a signal if traced",
-            env = "CRASHIE_SIGCHLD"
-        )
-    )]
-    sigchld: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(
-            long = "sigxcpu",
-            help = "CPU time limit exceeded",
-            env = "CRASHIE_SIGXCPU"
-        )
-    )]
-    sigxcpu: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(
-            long = "sigxfsz",
-            help = "File size limit exceeded",
-            env = "CRASHIE_SIGXFSZ"
-        )
-    )]
-    sigxfsz: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(
-            long = "sigvtalrm",
-            help = "Virtual timer clock",
-            env = "CRASHIE_SIGVTALRM"
-        )
-    )]
-    sigvtalrm: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(
-            long = "sigprof",
-            help = "Profile timer clock",
-            env = "CRASHIE_SIGPROF"
-        )
-    )]
-    sigprof: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(long = "sigio", help = "I/O now possible", env = "CRASHIE_SIGIO")
-    )]
-    sigio: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(
-            long = "sigpoll",
-            help = "Equivalent to SIGIO",
-            env = "CRASHIE_SIGPOLL"
-        )
-    )]
-    sigpoll: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(long = "sigpwr", help = "Power supply failure", env = "CRASHIE_SIGPWR")
-    )]
-    sigpwr: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(long = "sigsys", help = "Bad system call", env = "CRASHIE_SIGSYS")
-    )]
-    sigsys: bool,
-    #[cfg_attr(
-        feature = "non-posix",
-        clap(
-            long = "sigunused",
-            help = "Equivalent to SIGSYS",
-            env = "CRASHIE_SIGUNUSED"
-        )
-    )]
-    sigunused: bool,
-}
-
 fn main() {
     dotenv().ok();
     let mut rng = thread_rng();
-
     let opts: Opts = Opts::parse();
+
+    // Bind TCP echo sockets.
+    #[cfg(feature = "tcp-echo")]
+    for addr in opts.tcp_echo_socks.iter().flatten() {
+        if let Err(e) = tcp_echo::tcp_echo(addr) {
+            eprintln!("Failed to bind to TCP socket: {e}");
+            exit(1);
+        }
+    }
+
+    // Bind TDP echo sockets.
+    #[cfg(feature = "udp-echo")]
+    for addr in opts.udp_echo_socks.iter().flatten() {
+        if let Err(e) = udp_echo::udp_echo(addr) {
+            eprintln!("Failed to bind to UDP socket: {e}");
+            exit(1);
+        }
+    }
 
     let sleep_delay_mean = opts.sleep_delay;
     let sleep_delay_stddev = opts.sleep_delay_stddev;
@@ -399,24 +158,6 @@ fn add_signals(opts: Opts, codes: &mut HashSet<u8>) {
     }
     if opts.sigsys || opts.sigunused {
         codes.insert(signal_to_exit(31));
-    }
-}
-
-fn parse_signal(input: &str) -> Result<u8, String> {
-    let signal: u8 = input.parse().map_err(|e| format!("{e}"))?;
-    if !(1..=31).contains(&signal) {
-        Err(String::from("Signals must be in range 1 to 31 (inclusive)"))
-    } else {
-        Ok(signal)
-    }
-}
-
-fn parse_seconds(input: &str) -> Result<f64, String> {
-    let value: f64 = input.parse().map_err(|e| format!("{e}"))?;
-    if value < 0.0 {
-        Err(String::from("Value must be a non-negative number"))
-    } else {
-        Ok(value)
     }
 }
 

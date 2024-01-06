@@ -12,9 +12,11 @@ version = "0.2.0"
 edition = "2021"
 
 [features]
-default = ["posix", "non-posix"]
+default = ["posix", "non-posix", "tcp-echo", "udp-echo"]
 posix = []
 non-posix = []
+tcp-echo = []
+udp-echo = []
 
 [dependencies]
 clap = { version = "4.4.12", features = ["derive", "env"] }
