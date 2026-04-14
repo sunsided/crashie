@@ -23,5 +23,5 @@ udp-echo = []
 chrono = { version = "0.4.31", optional = true, default-features = false, features = ["clock", "alloc"] }
 clap = { version = "4.4.12", features = ["derive", "env"] }
 dotenvy = "0.15.7"
-rand = "0.8.5"
+rand = "0.9.3"
 rand_distr = "0.4.3"
