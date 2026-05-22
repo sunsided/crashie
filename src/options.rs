@@ -102,6 +102,20 @@ pub struct Opts {
     )]
     #[cfg_attr(not(feature = "http-echo"), clap(skip))]
     pub http_echo_liveness_probe_path: String,
+    #[cfg_attr(
+        feature = "http-echo",
+        clap(
+            long = "http-status",
+            help_heading = HELP_SECTION_ECHO_SERVER_HTTP,
+            help = "Default HTTP status code returned for non-liveness paths",
+            value_name = "STATUS",
+            default_value = "204",
+            value_parser(parse_http_status),
+            env = "CRASHIE_HTTP_STATUS"
+        )
+    )]
+    #[cfg_attr(not(feature = "http-echo"), clap(skip))]
+    pub http_echo_default_status: u16,
 
     #[clap(
         short = 'e',
@@ -443,11 +457,98 @@ fn parse_seconds(input: &str) -> Result<f64, String> {
     }
 }
 
-#[cfg(any(feature = "tcp-echo", feature = "udp-echo"))]
+#[cfg(any(feature = "tcp-echo", feature = "udp-echo", feature = "http-echo"))]
 fn parse_socket_addr(input: &str) -> Result<Vec<SocketAddr>, String> {
     use std::net::ToSocketAddrs;
     Ok(input
         .to_socket_addrs()
         .map_err(|e| format!("{e}"))?
         .collect())
+}
+
+#[cfg(feature = "http-echo")]
+fn parse_http_status(input: &str) -> Result<u16, String> {
+    let value: u16 = input.parse().map_err(|e| format!("{e}"))?;
+    if !(100..=599).contains(&value) {
+        Err(String::from(
+            "HTTP status code must be in range 100 to 599 (inclusive)",
+        ))
+    } else {
+        Ok(value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_seconds_accepts_positive() {
+        assert_eq!(parse_seconds("1.5"), Ok(1.5));
+        assert_eq!(parse_seconds("0"), Ok(0.0));
+    }
+
+    #[test]
+    fn parse_seconds_rejects_negative() {
+        assert!(parse_seconds("-0.5").is_err());
+    }
+
+    #[test]
+    fn parse_seconds_rejects_garbage() {
+        assert!(parse_seconds("not-a-number").is_err());
+    }
+
+    #[test]
+    fn parse_signal_accepts_in_range() {
+        assert_eq!(parse_signal("1"), Ok(1));
+        assert_eq!(parse_signal("15"), Ok(15));
+        assert_eq!(parse_signal("31"), Ok(31));
+    }
+
+    #[test]
+    fn parse_signal_rejects_out_of_range() {
+        assert!(parse_signal("0").is_err());
+        assert!(parse_signal("32").is_err());
+        assert!(parse_signal("255").is_err());
+    }
+
+    #[test]
+    fn parse_signal_rejects_garbage() {
+        assert!(parse_signal("KILL").is_err());
+    }
+
+    #[cfg(any(feature = "tcp-echo", feature = "udp-echo", feature = "http-echo"))]
+    #[test]
+    fn parse_socket_addr_accepts_ipv4() {
+        let addrs = parse_socket_addr("127.0.0.1:8080").expect("valid IPv4");
+        assert!(!addrs.is_empty());
+        assert_eq!(addrs[0].port(), 8080);
+    }
+
+    #[cfg(any(feature = "tcp-echo", feature = "udp-echo", feature = "http-echo"))]
+    #[test]
+    fn parse_socket_addr_rejects_garbage() {
+        assert!(parse_socket_addr("not a socket").is_err());
+    }
+
+    #[cfg(feature = "http-echo")]
+    #[test]
+    fn parse_http_status_accepts_valid_codes() {
+        assert_eq!(parse_http_status("200"), Ok(200));
+        assert_eq!(parse_http_status("204"), Ok(204));
+        assert_eq!(parse_http_status("503"), Ok(503));
+    }
+
+    #[cfg(feature = "http-echo")]
+    #[test]
+    fn parse_http_status_rejects_out_of_range() {
+        assert!(parse_http_status("99").is_err());
+        assert!(parse_http_status("600").is_err());
+    }
+
+    #[cfg(feature = "http-echo")]
+    #[test]
+    fn parse_http_status_rejects_garbage() {
+        assert!(parse_http_status("OK").is_err());
+    }
 }
