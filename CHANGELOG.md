@@ -11,6 +11,14 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   use case (restart-policy and probe testing).
 - GitHub Actions release workflow that publishes prebuilt binaries for Linux
   (x86_64, aarch64), macOS (x86_64, aarch64) and Windows (x86_64) on tag push.
+- Added `CRASHIE_HTTP_STATUS` / `--http-status` option to configure the HTTP status
+  code returned by the HTTP echo server for non-liveness paths (default `204`).
+  Useful for testing retry and circuit-breaker logic. The liveness probe path
+  continues to return `200 OK`.
+- README now includes the full `--help` output as a reference.
+- Unit tests for the pure helpers (`signal_to_exit`, `collect_exit_codes`,
+  `parse_signal`, `parse_seconds`, `parse_socket_addr`, `parse_http_status`)
+  and the HTTP response builder.
 
 ### Changed
 

@@ -98,6 +98,17 @@ In this situation, calls to `curl -v localhost:8080` result in a `204 No Content
 * Connection #0 to host localhost left intact
 ```
 
+The default status code for non-liveness paths is `204 No Content`. To make crashie return a
+different status (e.g. for testing retry and circuit-breaker logic), use `CRASHIE_HTTP_STATUS`
+or `--http-status`:
+
+```bash
+crashie --bind-http-echo 127.0.0.1:8080 --http-status 503
+```
+
+The liveness probe path continues to return `200 OK` regardless of the configured status,
+so probes still succeed while other paths fail.
+
 ### Running on Kubernetes
 
 A common use case for crashie is exercising a cluster's reaction to flaky pods — restart
@@ -197,4 +208,67 @@ To get a documentation, run
 
 ```shell
 cargo run -- --help
+```
+
+## All Command-Line Options
+
+Output of `crashie --help` (built with default features):
+
+```plain
+A Command-Line Utility that exits with a random exit code after a configurable delay
+
+Usage: crashie [OPTIONS]
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+Delay (crash after):
+  -d, --delay <SECONDS>               The sleep duration before exiting, in seconds [env: CRASHIE_SLEEP_DELAY=] [default: 9.0]
+      --delay-stddev <SECONDS>        The standard deviation of the sleep duration, in seconds [env: CRASHIE_SLEEP_DELAY_STDDEV=] [default: 2.0]
+      --delay-grace-period <SECONDS>  The duration, in seconds, to wait before starting the actual delay [env: CRASHIE_SLEEP_DELAY_GRACE_PERIOD=] [default: 1.0]
+
+Echo Server:
+      --bind-tcp-echo <SOCK_ADDR>  Provide TCP echo on the specified addresses [env: CRASHIE_BIND_TCP_ECHO=]
+      --bind-udp-echo <SOCK_ADDR>  Provide UDP echo on the specified addresses [env: CRASHIE_BIND_UDP_ECHO=]
+
+Echo Server (HTTP):
+      --bind-http-echo <SOCK_ADDR>            Provide HTTP echo on the specified addresses [env: CRASHIE_BIND_HTTP_ECHO=]
+      --http-liveness-probe-path <HTTP_PATH>  The request path on which to serve liveness probe results [env: CRASHIE_HTTP_LIVENESS_PROBE_PATH=] [default: /health/live]
+      --http-status <STATUS>                  Default HTTP status code returned for non-liveness paths [env: CRASHIE_HTTP_STATUS=] [default: 204]
+
+Exit Codes:
+  -e, --exit-code <EXIT_CODES>  Exit with the specified code(s) [env: CRASHIE_EXIT_CODES=]
+  -s, --signals <NUMBER>        Arbitrary signal (exit code 128+SIGNAL) [env: CRASHIE_SIGNALS=]
+
+Exit Codes (POSIX):
+      --sighup   Hang up controlling terminal or terminal [env: CRASHIE_SIGHUP=]
+      --sigint   Interrupt from keyboard, Control-C [env: CRASHIE_SIGINT=]
+      --sigquit  Quit from keyboard, Control-\ [env: CRASHIE_SIGQUIT=]
+      --sigill   Illegal instruction [env: CRASHIE_SIGILL=]
+      --sigabrt  Abnormal termination [env: CRASHIE_SIGABRT=]
+      --sigfpe   Floating-point exception [env: CRASHIE_SIGFPE=]
+      --sigkill  Forced process termination [env: CRASHIE_SIGKILL=]
+      --sigusr1  Freely available to processes [env: CRASHIE_SIGUSR1=]
+      --sigsegv  Invalid memory reference (Segmentation Fault) [env: CRASHIE_SIGSEGV=]
+      --sigusr2  Freely available to processes [env: CRASHIE_SIGUSR2=]
+      --sigpipe  Write to pipe with no readers [env: CRASHIE_SIGPIPE=]
+      --sigalrm  Real-time clock [env: CRASHIE_SIGALRM=]
+      --sigterm  Process termination [env: CRASHIE_SIGTERM=]
+
+Exit Codes (non-POSIX):
+      --sigtrap    Breakpoint for debugging [env: CRASHIE_SIGTRAP=]
+      --sigiot     Equivalent to SIGABRT [env: CRASHIE_SIGIOT=]
+      --sigbus     Bus error [env: CRASHIE_SIGBUS=]
+      --sigstkflt  Coprocessor stack error [env: CRASHIE_SIGSTKFLT=]
+      --sigchld    Child process stopped, terminated or got a signal if traced [env: CRASHIE_SIGCHLD=]
+      --sigxcpu    CPU time limit exceeded [env: CRASHIE_SIGXCPU=]
+      --sigxfsz    File size limit exceeded [env: CRASHIE_SIGXFSZ=]
+      --sigvtalrm  Virtual timer clock [env: CRASHIE_SIGVTALRM=]
+      --sigprof    Profile timer clock [env: CRASHIE_SIGPROF=]
+      --sigio      I/O now possible [env: CRASHIE_SIGIO=]
+      --sigpoll    Equivalent to SIGIO [env: CRASHIE_SIGPOLL=]
+      --sigpwr     Power supply failure [env: CRASHIE_SIGPWR=]
+      --sigsys     Bad system call [env: CRASHIE_SIGSYS=]
+      --sigunused  Equivalent to SIGSYS [env: CRASHIE_SIGUNUSED=]
 ```
