@@ -107,15 +107,16 @@ pub struct Opts {
         clap(
             long = "http-status",
             help_heading = HELP_SECTION_ECHO_SERVER_HTTP,
-            help = "Default HTTP status code returned for non-liveness paths",
+            help = "HTTP status code(s) returned for non-liveness paths. Pass multiple to pick one at random per request",
             value_name = "STATUS",
+            use_value_delimiter(true),
             default_value = "204",
             value_parser(parse_http_status),
             env = "CRASHIE_HTTP_STATUS"
         )
     )]
     #[cfg_attr(not(feature = "http-echo"), clap(skip))]
-    pub http_echo_default_status: u16,
+    pub http_echo_default_status: Vec<u16>,
 
     #[clap(
         short = 'e',
