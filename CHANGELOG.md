@@ -29,8 +29,10 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Upgraded `rand` from `0.8.5` to `0.9.3` and `rand_distr` from `0.4.3` to `0.5`.
-- Docker base images bumped to `rust:1.85-alpine3.21` (builder) and
-  `alpine:3.21` (runtime). The release build now uses `--locked`.
+- Docker base images bumped to `rust:1.91-alpine3.21` (builder) and
+  `alpine:3.21` (runtime). The release build now uses `--locked`, and
+  `cargo install cargo-auditable` is also pinned with `--locked` so a
+  newer transitive dep of `cargo-auditable` can't break the image build.
 
 ### Fixed
 

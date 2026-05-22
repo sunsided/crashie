@@ -1,7 +1,7 @@
-FROM rust:1.85-alpine3.21 AS builder
+FROM rust:1.91-alpine3.21 AS builder
 ENV RUSTFLAGS="-C target-feature=-crt-static"
 RUN apk add --no-cache musl-dev
-RUN cargo install cargo-auditable
+RUN cargo install --locked cargo-auditable
 WORKDIR /app
 COPY ./ /app
 RUN cargo auditable build --release --locked
