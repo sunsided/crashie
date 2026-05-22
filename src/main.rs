@@ -45,7 +45,11 @@ fn main() {
     // Bind HTTP sockets.
     #[cfg(feature = "http-echo")]
     for addr in opts.http_echo_socks.iter().flatten() {
-        if let Err(e) = http_echo::http_echo(addr, opts.http_echo_liveness_probe_path.clone()) {
+        if let Err(e) = http_echo::http_echo(
+            addr,
+            opts.http_echo_liveness_probe_path.clone(),
+            opts.http_echo_default_status,
+        ) {
             eprintln!("Failed to bind to HTTP socket: {e}");
             exit(1);
         }
@@ -176,4 +180,63 @@ fn add_signals(opts: Opts, codes: &mut HashSet<u8>) {
 
 const fn signal_to_exit(signal: u8) -> u8 {
     128 + signal
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use clap::Parser;
+
+    #[test]
+    fn signal_to_exit_offsets_by_128() {
+        assert_eq!(signal_to_exit(1), 129);
+        assert_eq!(signal_to_exit(9), 137);
+        assert_eq!(signal_to_exit(15), 143);
+        assert_eq!(signal_to_exit(31), 159);
+    }
+
+    fn parse_opts(args: &[&str]) -> Opts {
+        let mut argv = vec!["crashie"];
+        argv.extend_from_slice(args);
+        Opts::try_parse_from(argv).expect("valid args")
+    }
+
+    #[test]
+    fn collect_exit_codes_returns_explicit_exit_codes() {
+        let opts = parse_opts(&["-e", "42,7"]);
+        let mut codes = collect_exit_codes(opts);
+        codes.sort();
+        assert_eq!(codes, vec![7, 42]);
+    }
+
+    #[cfg(feature = "posix")]
+    #[test]
+    fn collect_exit_codes_converts_signals() {
+        let opts = parse_opts(&["--sigint", "--sigkill"]);
+        let mut codes = collect_exit_codes(opts);
+        codes.sort();
+        assert_eq!(codes, vec![130, 137]);
+    }
+
+    #[cfg(all(feature = "posix", feature = "non-posix"))]
+    #[test]
+    fn collect_exit_codes_deduplicates_overlapping_inputs() {
+        // SIGABRT and SIGIOT both map to exit code 134.
+        let opts = parse_opts(&["--sigabrt", "--sigiot"]);
+        let codes = collect_exit_codes(opts);
+        assert_eq!(codes, vec![134]);
+    }
+
+    #[test]
+    fn collect_exit_codes_is_empty_when_no_codes_or_signals() {
+        let opts = parse_opts(&[]);
+        assert!(collect_exit_codes(opts).is_empty());
+    }
+
+    #[test]
+    fn sample_random_sleep_duration_is_mean_when_stddev_is_zero() {
+        let mut rng = rand::rng();
+        let sample = sample_random_sleep_duration(&mut rng, 5.0, 0.0);
+        assert!((sample - 5.0).abs() < 1e-9);
+    }
 }
