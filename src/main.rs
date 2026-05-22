@@ -12,6 +12,7 @@ use clap::Parser;
 use dotenvy::dotenv;
 use options::Opts;
 use rand::prelude::*;
+use rand_distr::Distribution;
 use rand_distr::Normal;
 use std::collections::HashSet;
 use std::process::exit;
@@ -20,7 +21,7 @@ use std::time::Duration;
 
 fn main() {
     dotenv().ok();
-    let mut rng = thread_rng();
+    let mut rng = rand::rng();
     let opts: Opts = Opts::parse();
 
     // Bind TCP echo sockets.
@@ -32,7 +33,7 @@ fn main() {
         }
     }
 
-    // Bind TDP echo sockets.
+    // Bind UDP echo sockets.
     #[cfg(feature = "udp-echo")]
     for addr in opts.udp_echo_socks.iter().flatten() {
         if let Err(e) = udp_echo::udp_echo(addr) {
@@ -55,7 +56,7 @@ fn main() {
     let sleep_delay_stddev = opts.sleep_delay_stddev;
     let mut codes = collect_exit_codes(opts);
     if codes.is_empty() {
-        codes.push(rng.gen_range(1_u8..=255))
+        codes.push(rng.random_range(1_u8..=255))
     }
 
     // Select a random exit code.

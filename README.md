@@ -24,7 +24,7 @@ Alternatively, provide options using environment variables:
 CRASHIE_SIGNALS=2,3 CRASHIE_SLEEP_DELAY=10 CRASHIE_SLEEP_DELAY_STDDEV=2 crashie
 ```
 
-Crashie provides TCP and UDP echo functionalities. This comes in handy if you wand to test resilient connection
+Crashie provides TCP and UDP echo functionalities. This comes in handy if you want to test resilient connection
 logic, port forwarding (notably Kubernetes' `kubectl port-forward`) or similar aspects.
 
 To bind crashie to TCP sockets, use the `CRASHIE_BIND_TCP_ECHO` environment variable or run e.g.
@@ -98,6 +98,57 @@ In this situation, calls to `curl -v localhost:8080` result in a `204 No Content
 * Connection #0 to host localhost left intact
 ```
 
+### Running on Kubernetes
+
+A common use case for crashie is exercising a cluster's reaction to flaky pods — restart
+policies, probe behavior, `kubectl port-forward` resilience, retry logic in upstream
+services. The Docker image already exposes ports `80` (HTTP echo), `30000` (TCP echo) and
+`40000` (UDP echo) and a liveness probe path; pair it with a `restartPolicy` of `Always`
+and watch what happens:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crashie
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crashie
+  template:
+    metadata:
+      labels:
+        app: crashie
+    spec:
+      containers:
+        - name: crashie
+          image: sunside/crashie:latest
+          env:
+            # Crash after 30 ± 10 seconds with SIGINT or SIGTERM.
+            - name: CRASHIE_SLEEP_DELAY
+              value: "30"
+            - name: CRASHIE_SLEEP_DELAY_STDDEV
+              value: "10"
+            - name: CRASHIE_SIGNALS
+              value: "2,15"
+            - name: CRASHIE_HTTP_LIVENESS_PROBE_PATH
+              value: "/health/live"
+          ports:
+            - name: http
+              containerPort: 80
+            - name: tcp-echo
+              containerPort: 30000
+            - name: udp-echo
+              containerPort: 40000
+              protocol: UDP
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 5
+```
+
 ### Running via Docker
 
 The application is available as the [sunside/crashie](https://hub.docker.com/r/sunside/crashie) Docker image.
@@ -124,6 +175,13 @@ docker run --rm \
   sunside/crashie
 echo $?
 ```
+
+### Prebuilt Binaries
+
+Each tagged release publishes prebuilt binaries for Linux (x86_64, aarch64), macOS
+(x86_64, aarch64) and Windows (x86_64) on the
+[GitHub Releases](https://github.com/sunsided/crashie/releases) page. Download the
+archive for your platform, extract, and run `crashie`.
 
 ### Local Installation from crates.io
 

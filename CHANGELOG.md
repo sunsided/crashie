@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- README now includes a Kubernetes Deployment example demonstrating the intended
+  use case (restart-policy and probe testing).
+- GitHub Actions release workflow that publishes prebuilt binaries for Linux
+  (x86_64, aarch64), macOS (x86_64, aarch64) and Windows (x86_64) on tag push.
+
+### Changed
+
+- Upgraded `rand` from `0.8.5` to `0.9.3` and `rand_distr` from `0.4.3` to `0.5`.
+
+### Fixed
+
+- Minor README and source-comment typos.
+
 ## [0.4.0] - 2024-01-06
 
 ### Added
@@ -46,6 +63,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - 🎉 Initial release.
 
+[Unreleased]: https://github.com/sunsided/crashie/compare/0.4.0...HEAD
 [0.4.0]: https://github.com/sunsided/crashie/releases/tag/0.4.0
 [0.3.0]: https://github.com/sunsided/crashie/releases/tag/0.3.0
 [0.2.0]: https://github.com/sunsided/crashie/releases/tag/0.2.0
