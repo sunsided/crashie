@@ -48,7 +48,7 @@ fn main() {
         if let Err(e) = http_echo::http_echo(
             addr,
             opts.http_echo_liveness_probe_path.clone(),
-            opts.http_echo_default_status,
+            opts.http_echo_default_status.clone(),
         ) {
             eprintln!("Failed to bind to HTTP socket: {e}");
             exit(1);

@@ -5,6 +5,8 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-05-22
+
 ### Added
 
 - README now includes a Kubernetes Deployment example demonstrating the intended
@@ -12,10 +14,14 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - GitHub Actions release workflow that publishes prebuilt binaries for Linux
   (x86_64, aarch64), macOS (x86_64, aarch64) and Windows (x86_64) on tag push.
 - Added `CRASHIE_HTTP_STATUS` / `--http-status` option to configure the HTTP status
-  code returned by the HTTP echo server for non-liveness paths (default `204`).
-  Useful for testing retry and circuit-breaker logic. The liveness probe path
-  continues to return `200 OK`.
-- README now includes the full `--help` output as a reference.
+  code(s) returned by the HTTP echo server for non-liveness paths (default `204`).
+  Accepts a comma-separated list to rotate through statuses at random per request,
+  useful for chaos / flake-tolerance testing. The liveness probe path continues to
+  return `200 OK`.
+- README now includes the full `--help` output and a badge row.
+- Declared a minimum supported Rust version (MSRV) of `1.75`.
+- `build-docker.sh` now uses `docker buildx` and supports multi-arch builds
+  (`linux/amd64` and `linux/arm64` by default); set `PUSH=1` to publish.
 - Unit tests for the pure helpers (`signal_to_exit`, `collect_exit_codes`,
   `parse_signal`, `parse_seconds`, `parse_socket_addr`, `parse_http_status`)
   and the HTTP response builder.
@@ -23,6 +29,10 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Upgraded `rand` from `0.8.5` to `0.9.3` and `rand_distr` from `0.4.3` to `0.5`.
+- Docker base images bumped to `rust:1.91-alpine3.21` (builder) and
+  `alpine:3.21` (runtime). The release build now uses `--locked`, and
+  `cargo install cargo-auditable` is also pinned with `--locked` so a
+  newer transitive dep of `cargo-auditable` can't break the image build.
 
 ### Fixed
 
@@ -71,7 +81,8 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - 🎉 Initial release.
 
-[Unreleased]: https://github.com/sunsided/crashie/compare/0.4.0...HEAD
+[Unreleased]: https://github.com/sunsided/crashie/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/sunsided/crashie/releases/tag/0.5.0
 [0.4.0]: https://github.com/sunsided/crashie/releases/tag/0.4.0
 [0.3.0]: https://github.com/sunsided/crashie/releases/tag/0.3.0
 [0.2.0]: https://github.com/sunsided/crashie/releases/tag/0.2.0

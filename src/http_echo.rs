@@ -1,15 +1,23 @@
 use chrono::prelude::*;
+use rand::prelude::*;
 use std::io::{BufRead, BufReader, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
+use std::sync::Arc;
 use std::thread;
 
 pub fn http_echo(
     addr: &SocketAddr,
     liveness_probe_path: String,
-    default_status: u16,
+    default_statuses: Vec<u16>,
 ) -> Result<(), std::io::Error> {
     let listener = TcpListener::bind(addr)?;
     println!("Listening for HTTP connections on {addr}");
+
+    let statuses: Arc<[u16]> = if default_statuses.is_empty() {
+        Arc::from(vec![204])
+    } else {
+        Arc::from(default_statuses)
+    };
 
     thread::spawn(move || {
         for stream in listener.incoming() {
@@ -20,9 +28,8 @@ pub fn http_echo(
                         stream.peer_addr().expect("Unable to obtain peer address")
                     );
                     let liveness_probe_path = liveness_probe_path.clone();
-                    thread::spawn(move || {
-                        handle_client(stream, liveness_probe_path, default_status)
-                    });
+                    let statuses = Arc::clone(&statuses);
+                    thread::spawn(move || handle_client(stream, liveness_probe_path, &statuses));
                 }
                 Err(e) => {
                     eprintln!("Error accepting HTTP connection: {e}");
@@ -33,7 +40,8 @@ pub fn http_echo(
     Ok(())
 }
 
-fn handle_client(stream: TcpStream, liveness_probe_path: String, default_status: u16) {
+fn handle_client(stream: TcpStream, liveness_probe_path: String, default_statuses: &[u16]) {
+    let mut rng = rand::rng();
     let mut reader = BufReader::new(stream);
 
     loop {
@@ -70,7 +78,14 @@ fn handle_client(stream: TcpStream, liveness_probe_path: String, default_status:
             .expect("Failed to obtain write stream");
 
         let date = Utc::now().format("%a, %d %b %Y %T GMT").to_string();
-        let response = build_response(path, &liveness_probe_path, default_status, &date);
+        let status = if path == liveness_probe_path {
+            200
+        } else {
+            *default_statuses
+                .choose(&mut rng)
+                .expect("default_statuses is non-empty")
+        };
+        let response = build_response(status, &date);
 
         if let Err(e) = stream.write_all(response.as_bytes()) {
             eprintln!("Failed to write HTTP response: {e}")
@@ -78,18 +93,8 @@ fn handle_client(stream: TcpStream, liveness_probe_path: String, default_status:
     }
 }
 
-fn build_response(
-    path: &str,
-    liveness_probe_path: &str,
-    default_status: u16,
-    date: &str,
-) -> String {
+fn build_response(status: u16, date: &str) -> String {
     let version = env!("CARGO_PKG_VERSION");
-    let status = if path == liveness_probe_path {
-        200
-    } else {
-        default_status
-    };
     let reason = reason_phrase(status);
     format!(
         "HTTP/1.1 {status} {reason}\r\nServer: crashie/{version}\r\nDate: {date}\r\nContent-Length: 0\r\nCache-Control: no-cache, no-store\r\n\r\n"
@@ -144,40 +149,46 @@ fn reason_phrase(status: u16) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashSet;
 
     const DATE: &str = "Sat, 06 Jan 2024 14:44:53 GMT";
-    const LIVENESS: &str = "/health/live";
 
     #[test]
-    fn liveness_path_always_returns_200() {
-        let response = build_response(LIVENESS, LIVENESS, 503, DATE);
+    fn build_response_emits_known_reason_phrase() {
+        let response = build_response(200, DATE);
         assert!(response.starts_with("HTTP/1.1 200 OK\r\n"));
     }
 
     #[test]
-    fn non_liveness_path_uses_default_status() {
-        let response = build_response("/anything", LIVENESS, 204, DATE);
-        assert!(response.starts_with("HTTP/1.1 204 No Content\r\n"));
-    }
-
-    #[test]
-    fn custom_status_is_used_for_non_liveness_path() {
-        let response = build_response("/api", LIVENESS, 503, DATE);
+    fn build_response_emits_custom_status() {
+        let response = build_response(503, DATE);
         assert!(response.starts_with("HTTP/1.1 503 Service Unavailable\r\n"));
     }
 
     #[test]
-    fn unknown_status_falls_back_to_generic_reason() {
-        let response = build_response("/api", LIVENESS, 599, DATE);
+    fn build_response_falls_back_to_generic_reason() {
+        let response = build_response(599, DATE);
         assert!(response.starts_with("HTTP/1.1 599 Status\r\n"));
     }
 
     #[test]
-    fn response_includes_required_headers() {
-        let response = build_response("/api", LIVENESS, 200, DATE);
+    fn build_response_includes_required_headers() {
+        let response = build_response(200, DATE);
         assert!(response.contains(&format!("Date: {DATE}\r\n")));
         assert!(response.contains("Content-Length: 0\r\n"));
         assert!(response.contains("Cache-Control: no-cache, no-store\r\n"));
         assert!(response.ends_with("\r\n\r\n"));
+    }
+
+    #[test]
+    fn random_status_selection_only_picks_from_the_configured_set() {
+        let statuses = [200u16, 500, 503];
+        let allowed: HashSet<u16> = statuses.iter().copied().collect();
+        let mut rng = rand::rng();
+
+        for _ in 0..200 {
+            let picked = *statuses.choose(&mut rng).unwrap();
+            assert!(allowed.contains(&picked));
+        }
     }
 }

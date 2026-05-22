@@ -1,5 +1,10 @@
 # 💥 crashie — a little failure in a box
 
+[![crates.io](https://img.shields.io/crates/v/crashie.svg)](https://crates.io/crates/crashie)
+[![Docker Pulls](https://img.shields.io/docker/pulls/sunside/crashie.svg)](https://hub.docker.com/r/sunside/crashie)
+[![Rust](https://github.com/sunsided/crashie/actions/workflows/rust.yml/badge.svg)](https://github.com/sunsided/crashie/actions/workflows/rust.yml)
+[![License: EUPL-1.2](https://img.shields.io/badge/License-EUPL_1.2-blue.svg)](LICENSE.md)
+
 Crashie is a Command-Line Utility that exits with a random exit code after a configurable delay. Use it when you
 want to test restart behaviors or anything that requires an application to fail.
 
@@ -104,6 +109,13 @@ or `--http-status`:
 
 ```bash
 crashie --bind-http-echo 127.0.0.1:8080 --http-status 503
+```
+
+Pass a comma-separated list to rotate through statuses at random per request — handy for
+exercising chaos / flake tolerance in upstream callers:
+
+```bash
+crashie --bind-http-echo 127.0.0.1:8080 --http-status 200,500,503
 ```
 
 The liveness probe path continues to return `200 OK` regardless of the configured status,
@@ -235,7 +247,7 @@ Echo Server:
 Echo Server (HTTP):
       --bind-http-echo <SOCK_ADDR>            Provide HTTP echo on the specified addresses [env: CRASHIE_BIND_HTTP_ECHO=]
       --http-liveness-probe-path <HTTP_PATH>  The request path on which to serve liveness probe results [env: CRASHIE_HTTP_LIVENESS_PROBE_PATH=] [default: /health/live]
-      --http-status <STATUS>                  Default HTTP status code returned for non-liveness paths [env: CRASHIE_HTTP_STATUS=] [default: 204]
+      --http-status <STATUS>                  HTTP status code(s) returned for non-liveness paths. Pass multiple to pick one at random per request [env: CRASHIE_HTTP_STATUS=] [default: 204]
 
 Exit Codes:
   -e, --exit-code <EXIT_CODES>  Exit with the specified code(s) [env: CRASHIE_EXIT_CODES=]
