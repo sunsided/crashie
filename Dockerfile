@@ -1,13 +1,13 @@
-FROM rust:1.75-alpine3.19 AS builder
+FROM rust:1.85-alpine3.21 AS builder
 ENV RUSTFLAGS="-C target-feature=-crt-static"
 RUN apk add --no-cache musl-dev
 RUN cargo install cargo-auditable
 WORKDIR /app
 COPY ./ /app
-RUN cargo auditable build --release
+RUN cargo auditable build --release --locked
 RUN strip target/release/crashie
 
-FROM alpine:3.19
+FROM alpine:3.21
 RUN apk add --no-cache libgcc
 WORKDIR /app
 COPY --from=builder /app/target/release/crashie .
